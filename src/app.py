@@ -1,13 +1,12 @@
+import sys, os
+
+sys.path.insert(0, os.path.abspath("."))
+
 import tkinter as tk
 from tkinter import ttk
 
 
-class Frame(ttk.Frame):
-    def __init__(self, container, height, width, padding) -> None:
-        super().__init__(container, height=height, width=width, padding=padding)
-
-    def can_continue(self) -> bool:
-        raise NotImplemented
+from .frames import FolderSelect
 
 
 class Button(ttk.Button):
@@ -35,7 +34,7 @@ class App(tk.Tk):
 
         # Class variables
         self.index = 0
-        self.frames = [5, 6, 7, 8, 9, 10]
+        self.frames = [FolderSelect(self, width, height - 15, 0)]
         self.current_frame = self.frames[self.index]
         self.MIN = 0
         self.MAX = len(self.frames) - 1
