@@ -1,12 +1,8 @@
-import sys, os
-
-sys.path.insert(0, os.path.abspath("."))
-
 import tkinter as tk
 from tkinter import ttk
 
 
-from src.frames import FolderSelect
+from frames import FolderSelect
 
 
 class Button(ttk.Button):
@@ -34,7 +30,7 @@ class App(tk.Tk):
 
         # Class variables
         self.index = 0
-        self.frames = [FolderSelect(self, width, height, 0)]
+        self.frames = [FolderSelect(self, width, height, (12, 12, 12, 0))]
         self.current_frame = self.frames[self.index]
         self.MIN = 0
         self.MAX = len(self.frames) - 1
@@ -42,6 +38,7 @@ class App(tk.Tk):
         # Options
         self.geometry(f"{width}x{height}")
         self.resizable(False, False)
+        self.iconphoto(False, tk.PhotoImage(file="./icons/file.png"))
 
         # Title and icon
         if title:
@@ -50,16 +47,36 @@ class App(tk.Tk):
             self.iconphoto(False, tk.PhotoImage(icon))
 
         # Buttons
-        self.continue_button = Button(self, "Continue", tk.ACTIVE, self.forward)
-        self.back_button = Button(self, "Back", tk.DISABLED, self.backward)
+        self.button_frame = ttk.Frame(self)
+        self.continue_button = Button(
+            self.button_frame, "Continue", tk.ACTIVE, self.forward
+        )
+        self.back_button = Button(self.button_frame, "Back", tk.DISABLED, self.backward)
 
-        self.continue_button.pack(side=tk.RIGHT, padx=2, pady=5)
-        self.back_button.pack(side=tk.RIGHT, padx=2, pady=5)
+        # Error message
+        self.error_frame = ttk.Frame(self, height=20)
+        self.error_message = ttk.Label(self.error_frame, padding=(12, 0))
+
+        # Packing
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=5)
+        self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=1)
+
+        for frame in self.frames:
+            frame.grid(column=0, row=0, sticky=tk.NSEW)
+        self.error_frame.grid(column=0, row=1, sticky=tk.NSEW)
+        self.button_frame.grid(column=0, row=2, sticky=tk.NSEW)
+
+        self.continue_button.pack(side=tk.RIGHT, padx=10)
+        self.back_button.pack(side=tk.RIGHT)
+        self.error_message.pack(side=tk.LEFT, fill="x")
 
         self.mainloop()
 
     def forward(self):
-        if self.current_frame.can_continue():
+        can_continue, error_msg = self.current_frame.validate()
+        if can_continue:
             self.index += 1
             self.current_frame = self.frames[self.index]
 
@@ -69,8 +86,13 @@ class App(tk.Tk):
             if self.back_button.is_disabled():
                 self.back_button.enable()
 
+        if error_msg:
+            self.error_message.config(text=error_msg)
+            self.error_message.after(2000, lambda: self.error_message.config(text=""))
+
     def backward(self):
-        if self.current_frame.can_continue():
+        can_continue, error_msg = self.current_frame.validate()
+        if can_continue:
             self.index -= 1
             self.current_frame = self.frames[self.index]
 
@@ -79,6 +101,10 @@ class App(tk.Tk):
 
             if self.continue_button.is_disabled():
                 self.continue_button.make_active()
+
+        if error_msg:
+            self.error_message.config(text=error_msg)
+            self.error_message.after(2000, lambda: self.error_message.config(text=""))
 
 
 if __name__ == "__main__":

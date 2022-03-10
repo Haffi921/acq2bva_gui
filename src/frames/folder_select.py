@@ -12,7 +12,6 @@ class ImageButton(tk.Button):
         self, container, image_path, command, width=15, height=15, **kwargs
     ) -> None:
         image_path = str(Path(image_path).resolve())
-        print(image_path)
         self.image = ImageTk.PhotoImage(
             Image.open(image_path).resize((width, height), Image.ANTIALIAS)
         )
@@ -49,12 +48,15 @@ class FileList(tk.Listbox):
 
 
 class FolderSelect(Frame):
-    def __init__(self, container, height, width, padding) -> None:
-        super().__init__(container, height, width, padding)
+    def __init__(self, container, height, width, padding, **kwargs) -> None:
+        super().__init__(container, height, width, padding, **kwargs)
 
         # Class variables
         self.current_dir = Path.home()
         self.files = ()
+
+        self.error_color = "red"
+        self.normal_color = "black"
 
         # Grid
         self.columnconfigure(0, weight=3)
@@ -67,24 +69,32 @@ class FolderSelect(Frame):
             self, self.current_dir, self.validate_folder, width=40
         )
         self.open_folder = ImageButton(self, "./icons/open_folder.png", self.open_dir)
-        self.file_list = FileList(self, bg="lightgray", borderwidth=0)
+        self.file_list = FileList(
+            self, bg="lightgray", borderwidth=0, highlightbackground=self.normal_color
+        )
 
         # Layout
         self.folder.grid(column=0, row=0, sticky=tk.NSEW, padx=1)
         self.open_folder.grid(column=1, row=0, sticky=tk.E, padx=1)
-        self.file_list.grid(column=0, row=1, columnspan=2, sticky=tk.NSEW, pady=6)
+        self.file_list.grid(column=0, row=1, columnspan=2, sticky=tk.NSEW, pady=(10, 0))
 
-        self.pack(expand=True, fill="both", padx=10, pady=10)
+        # self.pack(expand=True, fill="both", padx=10, pady=10)
 
-    def can_continue(self) -> bool:
+    def validate(self) -> tuple[bool, str | None]:
         if not self.current_dir.is_dir():
-            self.folder.config(fg="red")
-            self.folder.after(700, lambda: self.folder.config(fg="black"))
-            return False
+            self.folder.config(fg=self.error_color)
+            self.folder.after(700, lambda: self.folder.config(fg=self.normal_color))
+            return (False, "Directory does not exist")
+
         if len(self.files) == 0:
-            self.file_list.config(highlightbackground="red")
-            return False
-        return True
+            self.file_list.config(highlightbackground=self.error_color)
+            self.file_list.after(
+                700,
+                lambda: self.file_list.config(highlightbackground=self.normal_color),
+            )
+            return (False, "There are no .acq files in this directory")
+
+        return (True, None)
 
     def validate_folder(self, *args):
         new_directory = Path(self.folder.get_value()).resolve()

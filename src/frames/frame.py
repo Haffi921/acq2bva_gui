@@ -2,8 +2,10 @@ from tkinter import ttk
 
 
 class Frame(ttk.Frame):
-    def __init__(self, container, height, width, padding) -> None:
-        super().__init__(container, height=height, width=width, padding=padding)
+    def __init__(self, container, height, width, padding, **kwargs) -> None:
+        super().__init__(
+            container, height=height, width=width, padding=padding, **kwargs
+        )
 
-    def can_continue(self) -> bool:
+    def validate(self) -> tuple[bool, str | None]:
         raise NotImplemented
