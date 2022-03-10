@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-from .frames import FolderSelect
+from src.frames import FolderSelect
 
 
 class Button(ttk.Button):
@@ -34,7 +34,7 @@ class App(tk.Tk):
 
         # Class variables
         self.index = 0
-        self.frames = [FolderSelect(self, width, height - 15, 0)]
+        self.frames = [FolderSelect(self, width, height, 0)]
         self.current_frame = self.frames[self.index]
         self.MIN = 0
         self.MAX = len(self.frames) - 1
@@ -53,8 +53,8 @@ class App(tk.Tk):
         self.continue_button = Button(self, "Continue", tk.ACTIVE, self.forward)
         self.back_button = Button(self, "Back", tk.DISABLED, self.backward)
 
-        self.continue_button.pack(side=tk.RIGHT)
-        self.back_button.pack(side=tk.RIGHT)
+        self.continue_button.pack(side=tk.RIGHT, padx=2, pady=5)
+        self.back_button.pack(side=tk.RIGHT, padx=2, pady=5)
 
         self.mainloop()
 
@@ -63,26 +63,23 @@ class App(tk.Tk):
             self.index += 1
             self.current_frame = self.frames[self.index]
 
-        if self.index == self.MAX:
-            self.continue_button.disable()
+            if self.index == self.MAX:
+                self.continue_button.disable()
 
-        if self.back_button.is_disabled():
-            self.back_button.enable()
-
-        print(self.current_frame)
+            if self.back_button.is_disabled():
+                self.back_button.enable()
 
     def backward(self):
-        self.index -= 1
-        self.current_frame = self.frames[self.index]
+        if self.current_frame.can_continue():
+            self.index -= 1
+            self.current_frame = self.frames[self.index]
 
-        if self.index == self.MIN:
-            self.back_button.disable()
+            if self.index == self.MIN:
+                self.back_button.disable()
 
-        if self.continue_button.is_disabled():
-            self.continue_button.make_active()
-
-        print(self.current_frame)
+            if self.continue_button.is_disabled():
+                self.continue_button.make_active()
 
 
 if __name__ == "__main__":
-    app = App(300, 300, "acq2bva")
+    app = App(300, 350, "acq2bva")

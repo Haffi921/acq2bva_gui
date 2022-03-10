@@ -79,7 +79,7 @@ class FolderSelector(tk.Frame):
             self, str(self.current_folder), self.validate_folder, width=60
         )
         self.open_folder = ImageButton(
-            self, "../icons/open_folder.png", self.open_directory
+            self, "./icons/open_folder.png", self.open_directory
         )
         self.file_list = FileList(self)
         self.continue_btn = tk.Button(self, text="Continue")
