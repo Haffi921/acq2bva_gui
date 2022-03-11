@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
-
-from frames import FolderSelect
+from frames.components.frame import Frame
+from frames import FolderSelect, OutputConfig
 
 
 class Button(ttk.Button):
@@ -30,8 +30,11 @@ class App(tk.Tk):
 
         # Class variables
         self.index = 0
-        self.frames = [FolderSelect(self, width, height, (12, 12, 12, 0))]
-        self.current_frame = self.frames[self.index]
+        self.frames = [
+            FolderSelect(self, width, height, (12, 12, 12, 0)),
+            OutputConfig(self, width, height, (12, 12, 12, 0)),
+        ]
+        self.current_frame: Frame = self.frames[self.index]
         self.MIN = 0
         self.MAX = len(self.frames) - 1
 
@@ -55,7 +58,7 @@ class App(tk.Tk):
 
         # Error message
         self.error_frame = ttk.Frame(self, height=20)
-        self.error_message = ttk.Label(self.error_frame, padding=(12, 0))
+        self.info_message = ttk.Label(self.error_frame, padding=(12, 0))
 
         # Packing
         self.columnconfigure(0, weight=1)
@@ -70,15 +73,25 @@ class App(tk.Tk):
 
         self.continue_button.pack(side=tk.RIGHT, padx=10)
         self.back_button.pack(side=tk.RIGHT)
-        self.error_message.pack(side=tk.LEFT, fill="x")
+        self.info_message.pack(side=tk.LEFT, fill="x")
+
+        self.current_frame.tkraise()
 
         self.mainloop()
 
+    def display_info_message(self, msg):
+        self.info_message.config(text=msg)
+
+    def remove_info_message(self):
+        self.info_message.config(text="")
+
     def forward(self):
-        can_continue, error_msg = self.current_frame.validate()
-        if can_continue:
+        if self.current_frame.can_continue():
             self.index += 1
             self.current_frame = self.frames[self.index]
+            self.current_frame.tkraise()
+
+            self.remove_info_message()
 
             if self.index == self.MAX:
                 self.continue_button.disable()
@@ -86,25 +99,16 @@ class App(tk.Tk):
             if self.back_button.is_disabled():
                 self.back_button.enable()
 
-        if error_msg:
-            self.error_message.config(text=error_msg)
-            self.error_message.after(2000, lambda: self.error_message.config(text=""))
-
     def backward(self):
-        can_continue, error_msg = self.current_frame.validate()
-        if can_continue:
-            self.index -= 1
-            self.current_frame = self.frames[self.index]
+        self.index -= 1
+        self.current_frame = self.frames[self.index]
+        self.current_frame.tkraise()
 
-            if self.index == self.MIN:
-                self.back_button.disable()
+        if self.index == self.MIN:
+            self.back_button.disable()
 
-            if self.continue_button.is_disabled():
-                self.continue_button.make_active()
-
-        if error_msg:
-            self.error_message.config(text=error_msg)
-            self.error_message.after(2000, lambda: self.error_message.config(text=""))
+        if self.continue_button.is_disabled():
+            self.continue_button.make_active()
 
 
 if __name__ == "__main__":

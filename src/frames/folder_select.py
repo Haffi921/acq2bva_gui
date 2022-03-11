@@ -54,11 +54,12 @@ class FolderSelect(Frame):
 
         # self.pack(expand=True, fill="both", padx=10, pady=10)
 
-    def validate(self) -> tuple[bool, str | None]:
+    def can_continue(self) -> bool:
         if not self.current_dir.is_dir():
             self.folder.config(fg=self.error_color)
             self.folder.after(700, lambda: self.folder.config(fg=self.normal_color))
-            return (False, "Directory does not exist")
+            self.display_info_message("Directory does not exist")
+            return False
 
         if len(self.files) == 0:
             self.file_list.config(highlightbackground=self.error_color)
@@ -66,7 +67,8 @@ class FolderSelect(Frame):
                 700,
                 lambda: self.file_list.config(highlightbackground=self.normal_color),
             )
-            return (False, "There are no .acq files in this directory")
+            self.display_info_message("There are no .acq files in this directory")
+            return False
 
         return (True, None)
 

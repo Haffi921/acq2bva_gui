@@ -7,5 +7,11 @@ class Frame(ttk.Frame):
             container, height=height, width=width, padding=padding, **kwargs
         )
 
-    def validate(self) -> tuple[bool, str | None]:
+    def can_continue(self) -> bool:
         raise NotImplemented
+
+    def display_info_message(self, msg):
+        self.master.display_info_message(msg)
+
+    def remove_info_message(self):
+        self.master.remove_info_message()
