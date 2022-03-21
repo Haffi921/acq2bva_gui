@@ -2,8 +2,46 @@ import tkinter as tk
 import tkinter.filedialog as fd
 from pathlib import Path
 
-from .components.frame import Frame
-from .components.widgets import ImageButton, FolderEntry
+from interfaces.frame import Frame
+from components.general.image_button import ImageButton
+from components.general.entry import Entry
+from components.general.folder_selector import FolderSelector
+
+
+class InputFolder(FolderSelector):
+    def __init__(self, container, **kwargs) -> None:
+        super().__init__(container, **kwargs)
+
+    def validate_dir(self) -> bool:
+        if super().validate_dir():
+            self.files = ()
+            self.file_list.set_list(())
+            if self.current_dir.exists() and self.current_dir.is_dir():
+                self.scan_dir()
+
+    def scan_dir(self):
+        new_files = []
+        for file in self.current_dir.iterdir():
+            if file.is_file() and file.match("*.acq"):
+                new_files.append(Path(file))
+        self.files = tuple(new_files)
+        self.file_list.set_list(
+            map(lambda file: Path(file.parent.name, file.name), self.files)
+        )
+
+
+class OutputFolder(FolderSelector):
+    def __init__(self, container, **kwargs) -> None:
+        super().__init__(container, **kwargs)
+
+    def validate_dir(self) -> bool:
+        if super().validate_dir():
+            if not self.current_dir.parent.exists():
+                # TODO: Set info
+                pass
+            if not self.current_dir.parent.is_dir():
+                # TODO: Set info
+                pass
 
 
 class FileList(tk.Listbox):
@@ -39,9 +77,7 @@ class FolderSelect(Frame):
         self.rowconfigure(1, weight=30)
 
         # Components
-        self.folder = FolderEntry(
-            self, self.current_dir, self.validate_folder, width=40
-        )
+        self.folder = Entry(self, self.current_dir, self.validate_folder, width=40)
         self.open_folder = ImageButton(self, "./icons/open_folder.png", self.open_dir)
         self.file_list = FileList(
             self, bg="lightgray", borderwidth=0, highlightbackground=self.normal_color

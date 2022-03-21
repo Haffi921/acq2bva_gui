@@ -14,17 +14,3 @@ class ImageButton(tk.Button):
             Image.open(image_path).resize((width, height), Image.ANTIALIAS)
         )
         super().__init__(container, image=self.image, command=command, **kwargs)
-
-
-class FolderEntry(tk.Entry):
-    def __init__(self, container, value, validator, **kwargs) -> None:
-        self.value = tk.StringVar(container, value=value)
-        super().__init__(container, textvariable=self.value, **kwargs)
-        self.value.trace_add("write", validator)
-
-    def get_value(self) -> str:
-        return self.value.get()
-
-    def set_value(self, new_value):
-        self.value.set(new_value)
-        self.xview_moveto(1)

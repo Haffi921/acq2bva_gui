@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
-from frames.components.frame import Frame
-from frames import FolderSelect, OutputConfig
+from interfaces.frame import Frame
+from pages import FolderSelect, OutputConfig
 
 
 class Button(ttk.Button):
