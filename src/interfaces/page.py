@@ -11,5 +11,5 @@ class Page(Frame):
         self.tkraise()
         self.loaded = True
 
-    def can_continue(self) -> bool:
+    def validate(self) -> None:
         raise NotImplemented

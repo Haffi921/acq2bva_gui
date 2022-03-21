@@ -2,7 +2,7 @@ import tkinter as tk
 
 from interfaces.frame import Frame
 from components.general.list_box import ListBox
-from components.constants import NORMAL_COLOR, ERROR_COLOR
+from components.util.constants import NORMAL_COLOR, ERROR_COLOR
 
 
 class AcqList(Frame):
@@ -43,7 +43,7 @@ class AcqList(Frame):
         if len(new_values):
             self.no_files_label.grid_forget()
         else:
-            self.no_files_label.grid()
+            self.no_files_label.grid(column=0, row=0)
 
     def highlight_error(self):
         self.error_count += 1
