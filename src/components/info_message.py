@@ -6,7 +6,7 @@ from interfaces.frame import Frame
 
 class InfoMessage(Frame):
     def __init__(self, container, padding=0, **kwargs) -> None:
-        super().__init__(container, padding, **kwargs)
+        super().__init__(container, padding=padding, **kwargs)
 
     def create_components(self) -> None:
         self.label = ttk.Label(self)

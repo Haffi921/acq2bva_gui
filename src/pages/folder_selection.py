@@ -1,3 +1,4 @@
+import tkinter as tk
 from tkinter import ttk
 from pathlib import Path
 
@@ -11,20 +12,23 @@ class InputFolder(FolderSelector):
         super().__init__(container, label, **kwargs)
 
         self.files: list[Path] = []
+        self.files_string = tk.StringVar()
 
-    def validate_dir(self) -> bool:
+    def validate_dir(self, *args) -> bool:
         if super().validate_dir():
             self.files = []
+            self.files_string.set("")
             if self.current_dir.exists() and self.current_dir.is_dir():
                 self.scan_dir()
 
-    def scan_dir(self):
-        new_files = []
+    def scan_dir(self, *args):
+        files = []
         for file in self.current_dir.iterdir():
             if file.is_file() and file.match("*.acq"):
-                new_files.append(Path(file))
+                files.append(Path(file))
                 file.parent.stem
-        self.files = new_files
+        self.files = files
+        self.files_string.set(files)
 
 
 class OutputFolder(FolderSelector):
@@ -52,29 +56,26 @@ class FolderSelect(Page):
             new_list.append(str(Path(file.parent.stem, file.stem)))
         return new_list
 
-    def update_file_list(self):
+    def update_file_list(self, *args):
         self.file_list.set_list(self.get_clean_input_files())
 
     def create_components(self) -> None:
-        self.input = InputFolder(self, "AcqKnowledge folder:")
+        self.input = InputFolder(self, "AcqKnowledge folder:", padding=(0, 0, 0, 12))
         self.file_list = AcqList(self)
-        self.separator = ttk.Separator(self, orient="horizontal")
-        self.output = OutputFolder(self, "Output folder:")
+        self.output = OutputFolder(self, "Output folder:", padding=(0, 12, 0, 12))
 
-        self.input.folder.trace_add(self.update_file_list)
+        self.input.files_string.trace_add("write", self.update_file_list)
 
     def geometry(self) -> None:
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=30)
         self.rowconfigure(2, weight=1)
-        self.rowconfigure(3, weight=1)
 
     def pack_components(self) -> None:
         self.input.grid(column=0, row=0)
         self.file_list.grid(column=0, row=1)
-        self.separator.grid(column=0, row=2)
-        self.output.grid(column=0, row=3)
+        self.output.grid(column=0, row=2)
 
     def validate(self) -> None:
         if not self.input.current_dir.is_dir():

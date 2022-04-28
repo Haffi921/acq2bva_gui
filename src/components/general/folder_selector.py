@@ -13,7 +13,7 @@ class FolderSelector(Frame):
     OPEN_FOLDER_ICON = "./icons/open_folder.png"
     FOLDER_HOME = str(Path.home().resolve())
 
-    def __init__(self, container, label, padding=None, **kwargs) -> None:
+    def __init__(self, container, label, **kwargs) -> None:
         self.label: tk.Label = label
         self.folder: Entry = None
         self.open_folder: ImageButton = None
@@ -51,7 +51,7 @@ class FolderSelector(Frame):
         self.columnconfigure(1, weight=1)
 
     def pack_components(self) -> None:
-        self.label.grid(column=0, row=0, sticky=tk.E, pady=(0, 4))
+        self.label.grid(column=0, row=0, sticky=tk.W, pady=(0, 4))
         self.folder.grid(column=0, row=1, sticky=tk.NSEW, padx=(0, 4))
         self.open_folder.grid(column=1, row=1, sticky=tk.NSEW, padx=(4, 0))
 

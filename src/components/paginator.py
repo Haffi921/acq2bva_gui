@@ -6,9 +6,9 @@ from interfaces.frame import Frame
 
 ## Model
 class Indexer:
-    def __init__(self, max) -> None:
+    def __init__(self, maximum) -> None:
         self.MIN, self.index = 0, 0
-        self.MAX = max(max, 0)
+        self.MAX = max(maximum, 0)
 
     def decrease(self) -> int:
         if self.index > self.MIN:
@@ -36,14 +36,19 @@ class Paginator(Frame):
         btn_func: tuple[Callable[[], None], Callable[[], None]],
         **kwargs
     ) -> None:
-        super().__init__(container, **kwargs)
-
-        self.indexer = Indexer(max=max)
+        self.indexer = Indexer(maximum=max)
 
         self.back_button = None
         self.next_btn = None
 
         self.back_func, self.next_func = btn_func
+
+        super().__init__(container, **kwargs)
+
+        self.refresh_state()
+
+    def index(self) -> int:
+        return self.indexer.index
 
     def refresh_state(self) -> None:
         if self.indexer.is_min():
@@ -67,9 +72,9 @@ class Paginator(Frame):
         self.next_func()
 
     def create_components(self) -> None:
-        self.back_button = Button(self, "Back", tk.DISABLED, self.back)
-        self.next_btn = Button(self, "Continue", tk.ACTIVE, self.next)
+        self.back_button = Button(self, "Back", state=tk.DISABLED, command=self.back)
+        self.next_btn = Button(self, "Continue", state=tk.ACTIVE, command=self.next)
 
     def pack_components(self) -> None:
-        self.back_button.pack(side=tk.RIGHT, before=self.next_btn)
-        self.next_btn.pack(side=tk.RIGHT, padx=10)
+        self.back_button.pack(side=tk.RIGHT)
+        self.next_btn.pack(side=tk.RIGHT, padx=10, before=self.back_button)
